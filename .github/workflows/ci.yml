@@ -5,7 +5,7 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   rust:
@@ -21,18 +21,22 @@ jobs:
           components: rustfmt, clippy
       - name: Generate lockfile
         run: cargo generate-lockfile
-      - name: Apply rustfmt for diagnostic cycle
+      - name: Apply rustfmt for repair cycle
         run: cargo fmt
-      - name: Preserve rustfmt output
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
-        with:
-          name: rustfmt-output
-          if-no-files-found: error
-          path: |
-            src
-            tests
-            Cargo.lock
+      - name: Commit canonical formatter output once
+        if: github.event_name == 'push' && matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/r7/zero-to-hero'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add src tests Cargo.lock
+          if git diff --cached --quiet; then
+            echo "No formatter or lockfile changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "style: apply canonical rustfmt and lock dependencies"
+          git push origin HEAD:r7/zero-to-hero
       - name: Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Tests
