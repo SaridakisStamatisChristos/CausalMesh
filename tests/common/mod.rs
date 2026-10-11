@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use causalmesh::{Dot, Operation, OperationKind, ReplicaId, VersionVector};
 
 pub fn rid(n: u128) -> ReplicaId {
