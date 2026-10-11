@@ -19,23 +19,30 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+      - name: Apply one-shot R7 hardening patch
+        if: github.event_name == 'push' && matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/r7/zero-to-hero' && hashFiles('repairs/strengthen.patch') != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          git apply repairs/strengthen.patch
+          rm repairs/strengthen.patch
       - name: Generate lockfile
         run: cargo generate-lockfile
       - name: Apply rustfmt for repair cycle
         run: cargo fmt
-      - name: Commit canonical formatter output once
+      - name: Commit repair output once
         if: github.event_name == 'push' && matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/r7/zero-to-hero'
         shell: bash
         run: |
           set -euo pipefail
-          git add src tests Cargo.lock
+          git add -A
           if git diff --cached --quiet; then
-            echo "No formatter or lockfile changes to commit"
+            echo "No repair changes to commit"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "style: apply canonical rustfmt and lock dependencies"
+          git commit -m "test: harden crash recovery and anti-entropy falsification"
           git push origin HEAD:r7/zero-to-hero
       - name: Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
