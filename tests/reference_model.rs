@@ -1,13 +1,14 @@
 mod common;
 
 use causalmesh::crdt::CrdtState;
-use causalmesh::{Operation, OperationKind};
+use causalmesh::{Dot, Operation, OperationKind};
 use common::{delete, put, rid, vv};
 use std::collections::BTreeMap;
 
-fn independent_frontier(
-    ops: &[Operation],
-) -> BTreeMap<String, Vec<(causalmesh::Dot, Option<Vec<u8>>)>> {
+type OracleEntry = (Dot, Option<Vec<u8>>);
+type OracleState = BTreeMap<String, Vec<OracleEntry>>;
+
+fn independent_frontier(ops: &[Operation]) -> OracleState {
     let mut by_key: BTreeMap<String, Vec<&Operation>> = BTreeMap::new();
     for op in ops {
         by_key
