@@ -61,3 +61,15 @@ Failures are retained; entries are never deleted when repaired.
 - **Repair:** run `cargo fmt --all` with the same stable Rust runner toolchain, retain this ledger entry, regenerate the authoritative manifest, and rerun the complete CI matrix from the repaired commit.
 - **Regression/evidence path:** `cargo fmt --check`, Clippy, all-target tests, release builds, installed CLI smoke, cross-platform matrix, RustSec, and manifest verification must all close on a later run.
 - **Status:** REPAIRED when the clean post-format CI run passes all required gates.
+
+## F-006 — Clippy rejected integration-test helper hygiene
+
+- **Lifecycle phase:** VERIFY / STATIC ANALYSIS
+- **Reproducer:** CI run 38162488285, `cargo clippy --all-targets --all-features -- -D warnings`.
+- **Observed behavior:** rustfmt and manifest verification passed, but Clippy rejected shared integration-test helper functions as dead code in test crates that do not use every helper, and rejected one independent-oracle return type for `clippy::type_complexity`.
+- **Violated requirement/claim:** static/lint CI gate; production CRDT, storage, replication, and recovery semantics were not implicated by the findings.
+- **Root cause:** `tests/common/mod.rs` is compiled independently into multiple integration-test crates with different helper usage, while the reference oracle exposed a nested concrete return type.
+- **Earliest invalidated phase:** VERIFY / STATIC ANALYSIS.
+- **Repair:** scope `#![allow(dead_code)]` to the shared test-helper module and factor the reference oracle result into explicit `OracleEntry` / `OracleState` aliases. No production source is changed.
+- **Regression/evidence path:** rerun rustfmt, Clippy with `-D warnings`, all-target tests, release builds, installed CLI smoke, cross-platform matrix, RustSec, and manifest verification.
+- **Status:** REPAIRED when a later clean CI run passes the static-analysis gate and all dependent gates.
