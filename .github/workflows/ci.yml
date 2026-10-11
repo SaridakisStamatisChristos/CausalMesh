@@ -44,5 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify evidence manifest
+      - name: Print exact manifest proposal
+        run: python scripts/generate_manifest.py
+      - name: Verify committed evidence manifest
         run: python scripts/verify_manifest.py
