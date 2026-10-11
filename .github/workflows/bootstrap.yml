@@ -1,0 +1,63 @@
+name: bootstrap-r7
+
+on:
+  push:
+    branches: [r7-zero-to-hero]
+    paths:
+      - ".bootstrap/**"
+      - ".github/workflows/bootstrap.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  synthesize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: r7-zero-to-hero
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Expand repository payload
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, io, zipfile
+
+          root = Path('.').resolve()
+          parts = sorted(Path('.bootstrap').glob('payload.*'))
+          sizes = [p.stat().st_size for p in parts]
+          data = ''.join(p.read_text() for p in parts)
+          if len(data) != 68704:
+              raise SystemExit(
+                  f"payload length {len(data)} != 68704; "
+                  f"parts={[(p.name, s) for p, s in zip(parts, sizes)]}"
+              )
+
+          raw = base64.b64decode(data, validate=True)
+          with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+              bad = archive.testzip()
+              if bad:
+                  raise SystemExit(f"zip CRC failed: {bad}")
+              for info in archive.infolist():
+                  target = (root / info.filename).resolve()
+                  if root not in target.parents and target != root:
+                      raise SystemExit(f"unsafe path {info.filename}")
+                  if info.is_dir():
+                      target.mkdir(parents=True, exist_ok=True)
+                  else:
+                      target.parent.mkdir(parents=True, exist_ok=True)
+                      target.write_bytes(archive.read(info))
+          PY
+          rm -rf .bootstrap .github/workflows/bootstrap.yml
+          cargo generate-lockfile
+          python3 scripts/generate_manifest.py
+      - name: Commit synthesized repository
+        run: |
+          git config user.name "causalmesh-r7-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "build: synthesize complete CausalMesh R7 repository"
+          git push origin HEAD:r7-zero-to-hero
