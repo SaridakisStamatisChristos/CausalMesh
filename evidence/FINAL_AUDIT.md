@@ -1,31 +1,41 @@
 # Final Adversarial Audit
 
-Initial pre-CI audit. Final answers are evidence-calibrated and must be updated after executable verification.
+This audit is calibrated to the v0.1 trust/durability model. It does not turn explicit non-goals into claims.
 
-1. Identical valid operations ending differently: targeted by exhaustive/property/reference tests; UNVERIFIED until CI.
-2. Duplicate delivery alters result: targeted; UNVERIFIED.
-3. Operation order alters converged state: targeted; UNVERIFIED.
-4. Causally old value resurrection: design prevents via frontier dominance; test authored; UNVERIFIED.
-5. Concurrent values silently collapsed: test authored; UNVERIFIED.
-6. Delete incorrectly erases concurrent write: test authored; UNVERIFIED.
-7. Delete forgotten by GC: destructive GC is absent; VERIFIED by design inspection.
-8. Counter rollback after normal reopen: counter log transition checks + test; UNVERIFIED execution.
-9. Operation ID reuse: reservation-before-append design; crash injection beyond process-level tests remains PARTIAL.
-10. Corruption becoming valid different operation: framed CRC/SHA checks target declared classes; cryptographic authenticity NOT CLAIMED.
-11. Unsupported format silently accepted: explicit version checks; UNVERIFIED execution.
-12. Malformed peer partially mutates local state: batch pre-validation; adversarial test authored; UNVERIFIED.
-13. Unknown-outcome retry duplicates logical mutation: stable IDs/idempotence; test coverage via duplicate delivery; UNVERIFIED.
-14. Receiver crash-after-persist-before-ack breaks convergence: architecture is idempotent; deterministic power-loss injection not yet fully executed; PARTIAL.
-15. Stale peer undoes newer state: stale replay test authored; UNVERIFIED.
-16. Cloned identity ambiguity: two clones can allocate conflicting dots; conflicting payload is detected and sync fails closed. Automatic clone prevention NOT CLAIMED.
-17. Snapshot omits required causality: snapshot contains complete operation set; round-trip test authored; UNVERIFIED.
-18. Compaction strands lagging peer: destructive compaction is not implemented; VERIFIED avoidance.
-19. Tombstone GC resurrects data: destructive GC absent; VERIFIED avoidance.
-20. Hash/map iteration changes canonical bytes: ordered collections used; explicit deterministic-byte regression still required before VERIFIED.
-21. Large declared sizes allocate unboundedly: message/frame bounds exist; tests pending.
-22. Random three-replica partitions fail convergence: deterministic three-way plus property campaign authored; broader randomized topology campaign remains PARTIAL.
-23. Repeated converged sync creates operations: test authored; UNVERIFIED.
-24. Recovery itself interrupted safely: torn-tail handling exists; nested interruption campaign is not exhaustive; PARTIAL.
-25. Documentation overclaims: README and limitations explicitly calibrate non-claims; VERIFIED by review.
+1. **Can two replicas receiving the same valid operations end differently?** No counterexample found; exhaustive, generated-history and independent-reference campaigns pass.
+2. **Can duplicate delivery alter the result?** No within tested semantics; cross-round, overlapping and same-batch duplicates are idempotent.
+3. **Can operation order alter converged state?** No counterexample found across reverse order, exhaustive permutations and generated histories.
+4. **Can a causally old value resurrect?** Regression says no; causal delete/write frontier preserves dominance.
+5. **Can concurrent values be silently collapsed?** Regression says no for MV-register semantics.
+6. **Can a delete erase a concurrent write incorrectly?** Regression says no; concurrent put remains visible.
+7. **Can a delete be forgotten and allow resurrection?** Destructive history/tombstone GC is absent.
+8. **Can a replica counter move backward after crash/reopen?** Counter-log transition and rollback checks fail closed.
+9. **Can an operation ID be reused?** Deterministic post-reservation crash consumes the counter; next ID advances.
+10. **Can corruption create a valid-looking different operation?** Declared CRC/SHA corruption classes fail closed. Cryptographic peer authenticity is not claimed.
+11. **Can an unsupported format be silently accepted?** Unsupported disk/wire versions fail closed.
+12. **Can malformed peer payload partially mutate durable state?** Batch prevalidation + reopen regression says no.
+13. **Can unknown-outcome retry duplicate logical mutation?** Stable IDs make retry idempotent.
+14. **Can receiver crash-after-persist-before-ack break convergence?** Fault-injection/retry regression recovers and converges.
+15. **Can a stale peer reconnect and undo newer state?** Stale replay does not resurrect dominated data.
+16. **Can cloned replica identity cause ambiguous IDs?** F-005 proved it could mask conflicts before repair; same-ID peer is now rejected before summary exchange. Startup clone prevention is not claimed.
+17. **Can a snapshot omit causality needed for later merge?** Snapshot stores the complete operation set; round-trip regression passes.
+18. **Can compaction make a lagging peer impossible to sync safely?** Destructive compaction is absent.
+19. **Can tombstone GC resurrect data?** Destructive tombstone GC is absent.
+20. **Can map/hash iteration order alter canonical encoding?** Ordered collections plus observation-order byte regression pass.
+21. **Can huge declared sizes cause unbounded allocation?** Wire/log bounds and F-008 identity/snapshot pre-read metadata checks close the declared surfaces.
+22. **Can random multi-replica partitions fail to converge?** Seeded gossip plus 32-case generated histories close with all-pair eventual delivery and independent reference comparison.
+23. **Can repeated sync of converged replicas create new operations?** Repeated sync transfers zero new operations.
+24. **Can recovery itself be interrupted safely?** Declared counter/local-persist/receive-persist boundaries and torn-tail recovery are tested. Exhaustive OS/kernel/power-cut faulting is **not claimed**.
+25. **Does documentation claim stronger consistency/durability/security than demonstrated?** No known overclaim remains; trust, platform durability, GC, transport, fuzzing and performance limits are explicit.
 
-Pre-CI verdict: **SYNTHESIS COMPLETE — verification incomplete**.
+## Residual adversarial risk
+
+The main unresolved production risks are peer authentication/encryption, explicit membership/retirement and causal stability, safe destructive compaction/GC, snapshot-accelerated recovery, real production transport, migration tooling, deeper filesystem/power-cut fault injection, and long-running coverage-guided fuzzing.
+
+## Verdict
+
+**Experimental/research-ready: YES. Production-ready: NO.**
+
+The implemented correctness contract is evidence-backed within its declared model; the unresolved items above are material production blockers rather than hidden claims.
+
+`FINAL_MANIFEST_STATUS: PENDING`

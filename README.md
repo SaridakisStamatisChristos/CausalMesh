@@ -6,19 +6,19 @@ CausalMesh is an embedded Rust library plus CLI for replicas that must mutate wh
 
 ## Status
 
-This repository is an experimental systems implementation. It is designed for evidence-driven verification and does **not** claim Byzantine security, authenticated peers, safe destructive tombstone GC, destructive log compaction, or automatic clone prevention. See `docs/LIMITATIONS.md` and `evidence/CLAIMS.md`.
+This repository is an evidence-backed experimental systems implementation, **not a production-ready distributed database**. It does not claim Byzantine security, authenticated peers, safe destructive tombstone GC, destructive log compaction, or transparent live-clone prevention. A peer presenting the local replica UUID is rejected before causal summary exchange, so cloned identities fail closed at synchronization time. See `docs/LIMITATIONS.md` and `evidence/CLAIMS.md`.
 
 ## Quick start
 
 ```bash
-cargo build --release
-cargo run -- init /tmp/a
-cargo run -- init /tmp/b
-cargo run -- put /tmp/a user:42 alice
-cargo run -- put /tmp/b user:42 bob
-cargo run -- sync /tmp/a /tmp/b
-cargo run -- get /tmp/a user:42 --json
-cargo run -- verify /tmp/a
+cargo build --locked --release
+cargo run --locked -- init /tmp/a
+cargo run --locked -- init /tmp/b
+cargo run --locked -- put /tmp/a user:42 alice
+cargo run --locked -- put /tmp/b user:42 bob
+cargo run --locked -- sync /tmp/a /tmp/b
+cargo run --locked -- get /tmp/a user:42 --json
+cargo run --locked -- verify /tmp/a
 ```
 
 After the sync, both concurrent values are visible. A later write performed by a replica that has observed both values causally dominates both.
@@ -45,25 +45,27 @@ causalmesh snapshot <DIR>
 - Replicated state is the immutable set of validated operations. Register values are the causally maximal operations for a key.
 - Deletes are first-class causal operations, not absence.
 - Anti-entropy sends operations whose dots are absent from the peer's exact causal summary.
-- Duplicate delivery is idempotent. Same ID with different payload fails closed.
-- Local counter reservation is durably synced before an operation is appended; committed operations are fsynced before success is returned.
-- Unsupported persistent/wire versions and checksum failures fail closed.
+- Duplicate delivery is idempotent; identical duplicates inside a batch are coalesced. Same ID with different payload fails closed.
+- Synchronization rejects a peer presenting the local durable replica UUID before summary exchange.
+- Local counter reservation is durably synced before the operation-log append; committed operations are synced before success is returned.
+- Unsupported persistent/wire versions and claimed corruption classes fail closed.
+- Destructive tombstone/history GC is intentionally absent because safe causal stability cannot be proven without membership/retirement semantics.
 
 ## Verification
 
 ```bash
 cargo fmt --check
-cargo clippy --all-targets --all-features -- -D warnings
-cargo test --all-targets
-cargo build --release
+cargo clippy --locked --all-targets --all-features -- -D warnings
+cargo test --locked --all-targets
+cargo build --locked --release
 python scripts/verify_manifest.py
 ```
 
-CI runs the Rust gates on Linux, macOS, and Windows. The test suite includes independent-reference checks, exhaustive delivery permutations for a bounded case, property testing, partition/rejoin scenarios, unknown-outcome retry behavior, recovery/corruption tests, adversarial batch validation, and bounded parser noise smoke.
+CI runs the Rust gates on Linux, macOS, and Windows. The suite includes independent-reference checks, exhaustive bounded delivery permutations, property/model-based generated histories, partition/rejoin scenarios, deterministic crash injection, unknown-outcome retry, recovery/corruption tests, adversarial batch validation, sync-time clone detection, and bounded deterministic parser fuzz-smoke across disk records, wire messages, causal contexts, and snapshots.
 
-## Architecture
+## Architecture and evidence
 
-Read the design in `docs/ARCHITECTURE.md`, causal model in `docs/CAUSALITY.md`, CRDT semantics in `docs/CRDT_SEMANTICS.md`, synchronization in `docs/ANTI_ENTROPY.md`, and evidence closure in `evidence/`.
+Read `docs/ARCHITECTURE.md`, `docs/CAUSALITY.md`, `docs/CRDT_SEMANTICS.md`, `docs/ANTI_ENTROPY.md`, `docs/STORAGE_FORMAT.md`, and the evidence ledgers under `evidence/`.
 
 ## License
 
