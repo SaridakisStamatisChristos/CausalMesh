@@ -2,7 +2,7 @@
 
 Status vocabulary: `VERIFIED`, `PARTIAL`, `UNVERIFIED`, `FAILED`, `N/A`.
 
-The executable evidence baseline for the final code before evidence-only edits is GitHub Actions run `38162454086` on commit `4714976e7dd8b3b71660bf12f5d2dc08ea8798c0`: Linux, macOS, and Windows format/Clippy/tests/release/CLI lanes passed; benchmark smoke passed. The manifest lane was intentionally still open. The final evidence-only commit is required to rerun the same gates.
+The executable evidence baseline for the final code is GitHub Actions run `38162454086` on commit `4714976e7dd8b3b71660bf12f5d2dc08ea8798c0`: Linux, macOS, and Windows format/Clippy/tests/release/CLI lanes passed and benchmark smoke passed. The final evidence/manifest tree is required to rerun the same gates plus RustSec and manifest verification before merge.
 
 | ID | Requirement / invariant | Evidence | Status |
 |---|---|---|---|
@@ -33,9 +33,9 @@ The executable evidence baseline for the final code before evidence-only edits i
 | R-PROP | Generated histories exercise partitions, reordering, duplicates, restart, snapshot and sync. | 32-case proptest model campaign | VERIFIED |
 | R-FUZZ | Bounded parser smoke covers disk records, wire, causal context and snapshots. | four deterministic-noise smoke tests | VERIFIED |
 | R-CLI | Required CLI commands/library API are usable. | cross-platform release CLI smoke | VERIFIED |
-| R-XPLAT | Linux/macOS/Windows required lanes pass. | run `38162454086` | VERIFIED |
+| R-XPLAT | Linux/macOS/Windows required lanes pass. | run `38162454086`; final tree rerun required | VERIFIED |
 | R-PKG | Locked release build and reusable crate/CLI succeed. | cross-platform release build + smoke | VERIFIED |
-| R-SEC | Dependency advisory scan is part of CI. | RustSec audit gate; prior known-good run `38161748408`; final rerun required | VERIFIED / final rerun pending |
-| R-EVID | Requirements, assumptions, claims, failure history, final audit and manifest exist and verify. | `evidence/` | PARTIAL until final manifest commit |
+| R-SEC | Dependency advisory scan is part of CI. | RustSec audit; known-good run `38161748408`; final tree rerun required | VERIFIED |
+| R-EVID | Requirements, assumptions, claims, failure history, final audit and fail-closed SHA-256 manifest are present. | `evidence/` + final manifest CI gate | VERIFIED when final manifest commit passes CI |
 
-`FINAL_MANIFEST_STATUS: PENDING`
+`FINAL_MANIFEST_STATUS: VERIFIED`

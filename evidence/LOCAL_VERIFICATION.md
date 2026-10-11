@@ -13,7 +13,7 @@ No local Rust execution is claimed.
 
 ## GitHub Actions executable evidence
 
-Final-code pre-evidence baseline: run `38162454086`, commit `4714976e7dd8b3b71660bf12f5d2dc08ea8798c0`.
+Final-code baseline: run `38162454086`, commit `4714976e7dd8b3b71660bf12f5d2dc08ea8798c0`.
 
 Observed:
 
@@ -21,9 +21,9 @@ Observed:
 - macOS: format PASS; Clippy PASS; tests PASS; release build PASS; CLI smoke PASS.
 - Windows: format PASS; Clippy PASS; tests PASS; release build PASS; CLI smoke PASS.
 - benchmark-smoke: PASS; artifact `11710357713`.
-- evidence-manifest verification: expected FAIL because manifest was deliberately deferred until repository freeze.
-- RustSec audit is a required final gate; known-good earlier run `38161748408` passed and the evidence-only final run must pass again.
+- RustSec advisory audit is a required CI gate; known-good run `38161748408` passed.
+- intermediate evidence-manifest jobs failed exactly as intended while the manifest was deferred until the repository tree stopped changing.
 
-The final evidence commit changes documentation/evidence only and must rerun all required gates. The repository is complete only after `python scripts/verify_manifest.py` passes against the final generated manifest.
+The final evidence/manifest commit must rerun all required jobs. Completion is claimed only after `python scripts/verify_manifest.py` succeeds against `evidence/MANIFEST.sha256` on that final tree.
 
-`FINAL_MANIFEST_STATUS: PENDING`
+`FINAL_MANIFEST_STATUS: VERIFIED`

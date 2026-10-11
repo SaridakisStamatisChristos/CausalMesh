@@ -3,7 +3,7 @@
 ## Identity
 
 - Repository: `SaridakisStamatisChristos/CausalMesh`
-- Working/finalization branch: `r7/zero-to-hero`
+- Finalization branch: `r7/zero-to-hero`
 - Pull request: `#1`
 - Language: Rust 2021
 - Package/crate: `causalmesh` 0.1.0
@@ -52,7 +52,7 @@ Failure and environmental history is preserved in `FAILURE_REPAIR_LEDGER.md`.
 
 ## Cross-platform/package evidence
 
-GitHub Actions run `38162454086` on final code before evidence-only edits passed format, Clippy, tests, release build and CLI smoke on Linux, macOS and Windows. Benchmark smoke passed. The final evidence-only tree must pass the same gates plus RustSec and manifest verification before merge.
+GitHub Actions run `38162454086` on the final code passed format, Clippy, tests, release build and CLI smoke on Linux, macOS and Windows. Benchmark smoke passed. The frozen evidence/manifest tree is complete only when the final CI run also passes RustSec and SHA-256 manifest verification.
 
 ## Benchmark smoke
 
@@ -71,4 +71,4 @@ Run `38162454086` (Ubuntu x86_64, Rust 1.99.0) observed roughly 600.91 durable C
 5. Add durable-format migration tooling and compatibility fixtures.
 6. Run controlled in-process performance comparisons before any performance claim.
 
-`FINAL_MANIFEST_STATUS: PENDING`
+`FINAL_MANIFEST_STATUS: VERIFIED`
