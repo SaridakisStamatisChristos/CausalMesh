@@ -183,6 +183,11 @@ impl Store {
             checksum: checksum.clone(),
         };
         let bytes = serde_json::to_vec(&envelope)?;
+        if bytes.len() > MAX_RECORD_BYTES {
+            return Err(Error::Bounds(
+                "snapshot exceeds maximum supported size".into(),
+            ));
+        }
         let final_path = self.root.join(format!("snapshot-{}.json", &checksum[..16]));
         if final_path.exists() {
             let _ = read_snapshot(&final_path)?;
@@ -323,6 +328,15 @@ fn scan_frames(path: &Path, magic: [u8; 4], expected_version: u16) -> Result<Vec
     while position < file_len {
         let remaining = file_len - position;
         if remaining < HEADER_LEN + CRC_LEN {
+            file.seek(SeekFrom::Start(position))?;
+            let mut tail = vec![0u8; remaining as usize];
+            file.read_exact(&mut tail)?;
+            if !recognizable_torn_prefix(&tail, magic, expected_version) {
+                return Err(corruption(
+                    path,
+                    format!("unrecognized short tail at offset {position}"),
+                ));
+            }
             file.set_len(position)?;
             file.sync_all()?;
             break;
@@ -379,6 +393,24 @@ fn scan_frames(path: &Path, magic: [u8; 4], expected_version: u16) -> Result<Vec
         position = record_end;
     }
     Ok(out)
+}
+
+fn recognizable_torn_prefix(tail: &[u8], magic: [u8; 4], expected_version: u16) -> bool {
+    if tail.is_empty() {
+        return true;
+    }
+    let magic_prefix = tail.len().min(magic.len());
+    if tail[..magic_prefix] != magic[..magic_prefix] {
+        return false;
+    }
+    if tail.len() <= magic.len() {
+        return true;
+    }
+    if tail.len() == 5 {
+        return tail[4] == expected_version.to_le_bytes()[0];
+    }
+    let version = u16::from_le_bytes([tail[4], tail[5]]);
+    version == expected_version
 }
 
 fn corruption(path: &Path, detail: impl Into<String>) -> Error {

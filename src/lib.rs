@@ -11,7 +11,7 @@ pub use causal::{CausalContext, Dot};
 pub use error::{Error, Result};
 pub use model::{OpKind, Operation};
 pub use protocol::WireMessage;
-pub use replica::{sync_bidirectional, Replica, Status, SyncReport};
+pub use replica::{sync_bidirectional, FaultPoint, Replica, Status, SyncReport};
 
 pub const STATE_VERSION: u16 = 1;
 pub const LOG_VERSION: u16 = 1;

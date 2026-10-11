@@ -28,6 +28,8 @@ pub enum Error {
     AlreadyInitialized(PathBuf),
     #[error("invariant violation: {0}")]
     Invariant(String),
+    #[error("injected fault at {0}")]
+    InjectedFault(&'static str),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

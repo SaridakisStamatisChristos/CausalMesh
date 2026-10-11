@@ -10,10 +10,28 @@ use crate::model::{OpKind, Operation, OperationSet};
 use crate::storage::Store;
 use crate::{MAX_BATCH_OPS, MAX_MESSAGE_BYTES};
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum FaultPoint {
+    AfterCounterReservation,
+    AfterLocalOperationPersistence,
+    AfterReceivedBatchPersistence,
+}
+
+impl FaultPoint {
+    fn label(self) -> &'static str {
+        match self {
+            Self::AfterCounterReservation => "after_counter_reservation",
+            Self::AfterLocalOperationPersistence => "after_local_operation_persistence",
+            Self::AfterReceivedBatchPersistence => "after_received_batch_persistence",
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Replica {
     store: Store,
     engine: OperationSet,
+    fault_point: Option<FaultPoint>,
 }
 
 #[derive(Debug, Serialize)]
@@ -39,13 +57,24 @@ impl Replica {
         Ok(Self {
             store,
             engine: OperationSet::default(),
+            fault_point: None,
         })
     }
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
         let (store, operations) = Store::open(path)?;
         let engine = OperationSet::from_operations(operations)?;
-        Ok(Self { store, engine })
+        Ok(Self {
+            store,
+            engine,
+            fault_point: None,
+        })
     }
+    /// Installs a one-shot deterministic fault used by crash/recovery tests.
+    /// The fault is consumed when the named durable boundary is reached.
+    pub fn set_fault_point(&mut self, point: Option<FaultPoint>) {
+        self.fault_point = point;
+    }
+
     pub fn replica_id(&self) -> Uuid {
         self.store.replica_id()
     }
@@ -98,6 +127,7 @@ impl Replica {
             }
         }
         self.store.append_operations(&missing)?;
+        self.trip(FaultPoint::AfterReceivedBatchPersistence)?;
         for op in &missing {
             let inserted = self.engine.insert(op.clone())?;
             debug_assert!(inserted);
@@ -133,8 +163,17 @@ impl Replica {
         self.store.write_snapshot(&self.operations())
     }
 
+    fn trip(&mut self, point: FaultPoint) -> Result<()> {
+        if self.fault_point == Some(point) {
+            self.fault_point = None;
+            return Err(Error::InjectedFault(point.label()));
+        }
+        Ok(())
+    }
+
     fn local_mutation(&mut self, key: String, kind: OpKind) -> Result<Dot> {
         let counter = self.store.reserve_counter()?;
+        self.trip(FaultPoint::AfterCounterReservation)?;
         let id = Dot::new(self.replica_id(), counter)?;
         let op = Operation {
             id,
@@ -144,6 +183,7 @@ impl Replica {
         };
         op.validate()?;
         self.store.append_operation(&op)?;
+        self.trip(FaultPoint::AfterLocalOperationPersistence)?;
         self.engine.insert(op)?;
         Ok(id)
     }

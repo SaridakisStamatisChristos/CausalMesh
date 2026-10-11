@@ -85,7 +85,8 @@ impl CausalContext {
                 return Err(Error::InvalidOperation("zero cloud counter".into()));
             }
             let base = self.base.get(&dot.replica).copied().unwrap_or(0);
-            if dot.counter <= base + 1 {
+            let adjacent = base.checked_add(1) == Some(dot.counter);
+            if dot.counter <= base || adjacent {
                 return Err(Error::InvalidOperation(format!(
                     "non-canonical cloud dot {dot}; base is {base}"
                 )));
