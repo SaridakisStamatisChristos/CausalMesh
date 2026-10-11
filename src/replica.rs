@@ -134,6 +134,7 @@ impl Replica {
                 if prior != op {
                     return Err(Error::ConflictingOperation(op.id.to_string()));
                 }
+                continue;
             }
             if let Some(existing) = self.engine.operations().get(&op.id) {
                 if existing != op {
