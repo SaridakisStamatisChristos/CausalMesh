@@ -23,7 +23,8 @@ Failures are retained. Each entry records the earliest invalidated phase and the
 - reproducer: evidence job on intermediate runs
 - observed: `evidence/MANIFEST.sha256` missing
 - repair: defer manifest until code/docs/evidence freeze; generate from exact final repository bytes and verify fail-closed
-- status: OPEN UNTIL FINAL MANIFEST COMMIT
+- reverification: final merged `main` run `38162996142` passed the committed SHA-256 manifest gate
+- status: CLOSED
 
 ## F-004 — GitHub dependency-review action unsupported because Dependency Graph disabled
 - phase: VERIFY / SECURITY
@@ -42,7 +43,7 @@ Failures are retained. Each entry records the earliest invalidated phase and the
 - earliest invalidated phase: SPEC/INTEGRATE handshake semantics
 - repair: `Replica::validate_peer_identity`; reject peer UUID equal to local UUID before causal summaries; `ReplicaIdentityCollision`
 - regression: `conflicting_cloned_replica_identity_fails_closed`
-- reverification: cross-platform runs including `38161748408` and `38162454086`
+- reverification: cross-platform runs including `38161748408`, `38162454086`, and final merged `main` run `38162996142`
 - status: CLOSED
 
 ## F-006 — Identical duplicate operations inside one batch were staged twice
@@ -72,7 +73,7 @@ Failures are retained. Each entry records the earliest invalidated phase and the
 - root cause: post-read rather than metadata precheck
 - earliest invalidated phase: GENERATE storage parser
 - repair: metadata length check before `fs::read`; sparse-file regressions; commit `1514b080...`
-- reverification: incorporated in final cross-platform test run `38162454086`
+- reverification: incorporated in final cross-platform test run `38162454086` and final merged `main` run `38162996142`
 - status: CLOSED
 
 ## F-009 — Initial fuzz-smoke covered only wire parser
@@ -81,5 +82,5 @@ Failures are retained. Each entry records the earliest invalidated phase and the
 - observed: disk record, causal-context and snapshot decoder surfaces requested by contract were not smoke-fuzzed
 - root cause: incomplete verification surface, not known product failure
 - repair: deterministic bounded noise tests for wire, causal context, snapshot and operation log; commit `4714976e...`
-- reverification: final cross-platform run `38162454086`
+- reverification: final cross-platform run `38162454086` and final merged `main` run `38162996142`
 - status: CLOSED
