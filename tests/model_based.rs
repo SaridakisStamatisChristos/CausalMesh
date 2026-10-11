@@ -13,9 +13,9 @@ fn reference_visible(ops: &[Operation]) -> BTreeMap<String, Vec<Vec<u8>>> {
             .iter()
             .copied()
             .filter(|candidate| {
-                !same_key.iter().any(|other| {
-                    other.id != candidate.id && other.context.contains(candidate.id)
-                })
+                !same_key
+                    .iter()
+                    .any(|other| other.id != candidate.id && other.context.contains(candidate.id))
             })
             .collect();
         let mut values: Vec<Vec<u8>> = maximal
