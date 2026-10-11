@@ -1,0 +1,32 @@
+[package]
+name = "causalmesh"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+description = "Deterministic offline-first replicated state engine with causal consistency and auditable anti-entropy"
+repository = "https://github.com/SaridakisStamatisChristos/CausalMesh"
+keywords = ["crdt", "offline-first", "replication", "causal-consistency"]
+categories = ["data-structures", "database-implementations"]
+publish = false
+
+[lib]
+name = "causalmesh"
+path = "src/lib.rs"
+
+[[bin]]
+name = "causalmesh"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+crc32fast = "1.4"
+hex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+thiserror = "2.0"
+uuid = { version = "1.11", features = ["v4", "serde"] }
+
+[dev-dependencies]
+proptest = "1.5"
+tempfile = "3.14"
