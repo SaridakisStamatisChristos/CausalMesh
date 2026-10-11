@@ -37,3 +37,15 @@ Failures are retained; entries are never deleted when repaired.
 - **Repair:** indent the entire here-document inside the `run: |` scalar so YAML strips indentation before shell execution.
 - **Regression/evidence path:** next bootstrap run must create and execute the `synthesize` job.
 - **Status:** REPAIRED when the corrected bootstrap job starts successfully.
+
+## F-004 — First authoritative CI trigger races the manifest transition
+
+- **Lifecycle phase:** MANIFEST / EVIDENCE
+- **Reproducer:** first `.ci-trigger` push after connector installation of the final CI workflow.
+- **Observed behavior:** that event necessarily starts from the pre-CI manifest while a dedicated reconciliation workflow creates the first manifest covering the final workflow set; its manifest gate is expected to fail closed.
+- **Violated requirement/claim:** none silently accepted; the manifest gate intentionally rejects the transitional event SHA.
+- **Root cause:** GitHub contents/workflow mutations are separate commits, while the manifest hashes authoritative repository content.
+- **Earliest invalidated phase:** MANIFEST / EVIDENCE only.
+- **Repair:** reconcile the manifest with the final CI workflow, remove this temporary reconciler, then trigger CI again from an event SHA whose manifest is already authoritative.
+- **Regression/evidence path:** the next CI run must pass `scripts/verify_manifest.py` before evidence closure.
+- **Status:** REPAIRED when the clean post-reconciliation CI run passes the manifest gate.
