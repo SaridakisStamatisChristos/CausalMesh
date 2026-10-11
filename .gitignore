@@ -1,3 +1,4 @@
 /target/
+/.ci-install/
 *.swp
 .DS_Store
