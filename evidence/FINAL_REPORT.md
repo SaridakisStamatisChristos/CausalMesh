@@ -5,8 +5,10 @@
 - Repository: `SaridakisStamatisChristos/CausalMesh`
 - Finalization branch: `r7/zero-to-hero`
 - Pull request: `#1`
+- Merged `main` evidence head: `445ec4904d8c24cce3fa39b7a567b4a58d085269`
 - Language: Rust 2021
 - Package/crate: `causalmesh` 0.1.0
+- License: proprietary; see root `LICENSE`
 
 ## Replication design
 
@@ -52,7 +54,7 @@ Failure and environmental history is preserved in `FAILURE_REPAIR_LEDGER.md`.
 
 ## Cross-platform/package evidence
 
-GitHub Actions run `38162454086` on the final code passed format, Clippy, tests, release build and CLI smoke on Linux, macOS and Windows. Benchmark smoke passed. The frozen evidence/manifest tree is complete only when the final CI run also passes RustSec and SHA-256 manifest verification.
+GitHub Actions run `38162454086` passed format, Clippy, tests, release build, CLI smoke, and benchmark smoke on the finalized implementation. After merge, `main` head `445ec4904d8c24cce3fa39b7a567b4a58d085269` was independently reverified by run `38162996142`: Linux, macOS, and Windows Rust jobs passed together with the RustSec security audit, benchmark smoke, and committed SHA-256 evidence-manifest verification.
 
 ## Benchmark smoke
 
