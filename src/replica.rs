@@ -60,6 +60,7 @@ impl Replica {
             fault_point: None,
         })
     }
+
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
         let (store, operations) = Store::open(path)?;
         let engine = OperationSet::from_operations(operations)?;
@@ -69,6 +70,7 @@ impl Replica {
             fault_point: None,
         })
     }
+
     /// Installs a one-shot deterministic fault used by crash/recovery tests.
     /// The fault is consumed when the named durable boundary is reached.
     pub fn set_fault_point(&mut self, point: Option<FaultPoint>) {
@@ -78,18 +80,33 @@ impl Replica {
     pub fn replica_id(&self) -> Uuid {
         self.store.replica_id()
     }
+
+    /// Validates the peer identity before summary exchange. A peer presenting
+    /// our own durable identity is either this same replica or a clone and is
+    /// rejected before dot summaries can mask conflicting same-ID operations.
+    pub fn validate_peer_identity(&self, peer: Uuid) -> Result<()> {
+        if peer == self.replica_id() {
+            return Err(Error::ReplicaIdentityCollision(peer));
+        }
+        Ok(())
+    }
+
     pub fn put(&mut self, key: impl Into<String>, value: impl Into<Vec<u8>>) -> Result<Dot> {
         self.local_mutation(key.into(), OpKind::Put(value.into()))
     }
+
     pub fn delete(&mut self, key: impl Into<String>) -> Result<Dot> {
         self.local_mutation(key.into(), OpKind::Delete)
     }
+
     pub fn get(&self, key: &str) -> Vec<Vec<u8>> {
         self.engine.get(key)
     }
+
     pub fn summary(&self) -> CausalContext {
         self.engine.seen().clone()
     }
+
     pub fn export_missing(&self, peer: &CausalContext) -> Vec<Operation> {
         self.engine.missing_for(peer)
     }
@@ -153,12 +170,15 @@ impl Replica {
             log_bytes,
         })
     }
+
     pub fn logical_state(&self) -> BTreeMap<String, Vec<Vec<u8>>> {
         self.engine.logical_state()
     }
+
     pub fn operations(&self) -> Vec<Operation> {
         self.engine.operations().values().cloned().collect()
     }
+
     pub fn snapshot(&self) -> Result<PathBuf> {
         self.store.write_snapshot(&self.operations())
     }
@@ -190,6 +210,9 @@ impl Replica {
 }
 
 pub fn sync_bidirectional(a: &mut Replica, b: &mut Replica) -> Result<SyncReport> {
+    a.validate_peer_identity(b.replica_id())?;
+    b.validate_peer_identity(a.replica_id())?;
+
     let a_summary = a.summary();
     let b_summary = b.summary();
     let a_to_b = a.export_missing(&b_summary);

@@ -149,7 +149,7 @@ fn conflicting_cloned_replica_identity_fails_closed() {
     assert_eq!(a_id, b_id);
     assert!(matches!(
         sync_bidirectional(&mut a, &mut b),
-        Err(Error::ConflictingOperation(_))
+        Err(Error::ReplicaIdentityCollision(_))
     ));
 }
 

@@ -59,14 +59,16 @@ jobs:
           path: benchmark-smoke.json
           if-no-files-found: error
 
-  dependency-review:
-    if: github.event_name == 'pull_request'
+  security-audit:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      checks: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/dependency-review-action@v4
+      - uses: rustsec/audit-check@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   evidence:
     runs-on: ubuntu-latest

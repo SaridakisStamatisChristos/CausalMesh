@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use thiserror::Error;
+use uuid::Uuid;
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -22,6 +23,8 @@ pub enum Error {
     InvalidOperation(String),
     #[error("operation id {0} already exists with a different payload")]
     ConflictingOperation(String),
+    #[error("peer presented the local replica identity {0}; cloned/self replica synchronization is rejected")]
+    ReplicaIdentityCollision(Uuid),
     #[error("replica store is not initialized: {0}")]
     NotInitialized(PathBuf),
     #[error("replica store already exists: {0}")]
