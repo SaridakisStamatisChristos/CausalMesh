@@ -69,4 +69,4 @@ Read `docs/ARCHITECTURE.md`, `docs/CAUSALITY.md`, `docs/CRDT_SEMANTICS.md`, `doc
 
 ## License
 
-No open-source license is granted by this repository at this time. The repository owner may add or change licensing later.
+CausalMesh is proprietary and all rights are reserved. Public source availability does not grant permission to use, copy, modify, distribute, deploy, execute, or create derivative works. See [`LICENSE`](LICENSE) for the governing terms.
