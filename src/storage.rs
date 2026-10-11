@@ -214,12 +214,12 @@ impl Store {
 
 pub fn read_snapshot(path: impl AsRef<Path>) -> Result<SnapshotPayload> {
     let path = path.as_ref();
-    let bytes = fs::read(path)?;
-    if bytes.len() > MAX_RECORD_BYTES {
+    if fs::metadata(path)?.len() > MAX_RECORD_BYTES as u64 {
         return Err(Error::Bounds(
             "snapshot exceeds maximum supported size".into(),
         ));
     }
+    let bytes = fs::read(path)?;
     let envelope: SnapshotEnvelope = serde_json::from_slice(&bytes)?;
     if envelope.payload.version != SNAPSHOT_VERSION {
         return Err(Error::UnsupportedVersion {
@@ -255,10 +255,10 @@ fn write_identity(path: &Path, replica_id: Uuid) -> Result<()> {
 }
 
 fn read_identity(path: &Path) -> Result<Uuid> {
-    let bytes = fs::read(path)?;
-    if bytes.len() > 64 * 1024 {
+    if fs::metadata(path)?.len() > 64 * 1024 {
         return Err(Error::Bounds("identity file too large".into()));
     }
+    let bytes = fs::read(path)?;
     let envelope: IdentityEnvelope = serde_json::from_slice(&bytes)?;
     if envelope.payload.version != STATE_VERSION {
         return Err(Error::UnsupportedVersion {

@@ -65,6 +65,35 @@ fn missing_identity_with_existing_state_fails_closed() {
 }
 
 #[test]
+fn oversized_identity_is_rejected_before_file_read() {
+    let dir = TempDir::new().unwrap();
+    let r = Replica::init(dir.path()).unwrap();
+    drop(r);
+    let path = dir.path().join("identity.json");
+    OpenOptions::new()
+        .write(true)
+        .open(&path)
+        .unwrap()
+        .set_len(64 * 1024 + 1)
+        .unwrap();
+    assert!(matches!(Replica::open(dir.path()), Err(Error::Bounds(_))));
+}
+
+#[test]
+fn oversized_snapshot_is_rejected_before_file_read() {
+    let dir = TempDir::new().unwrap();
+    let path = dir.path().join("oversized.snapshot");
+    OpenOptions::new()
+        .create_new(true)
+        .write(true)
+        .open(&path)
+        .unwrap()
+        .set_len(causalmesh::MAX_RECORD_BYTES as u64 + 1)
+        .unwrap();
+    assert!(matches!(read_snapshot(path), Err(Error::Bounds(_))));
+}
+
+#[test]
 fn snapshot_corruption_fails_closed() {
     let dir = TempDir::new().unwrap();
     let mut r = Replica::init(dir.path()).unwrap();
