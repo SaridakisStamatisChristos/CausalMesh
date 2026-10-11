@@ -12,7 +12,7 @@ Failures are retained; entries are never deleted when repaired.
 - **Earliest invalidated phase:** VERIFY only.
 - **Repair:** use repository-native GitHub Actions as the execution oracle; never convert missing local tools into PASS.
 - **Regression/evidence path:** CI runs format, clippy, tests, cross-platform matrix, release build, CLI smoke, manifest verification, and dependency audit.
-- **Status:** OPEN until CI evidence is observed.
+- **Status:** CLOSED — external CI verification succeeded; see `CI_EVIDENCE.md`.
 
 ## F-002 — Bootstrap push denied on workflow permission boundary
 

@@ -1,0 +1,23 @@
+# Final R7 Report
+
+- Repository: https://github.com/SaridakisStamatisChristos/CausalMesh
+- Final branch: `r7-zero-to-hero` (before merge)
+- Verified source SHA: `3a8af213c6d5852e228763d817108fb47accdd96`
+- Implementation: Rust 2021, crate/package `causalmesh`
+- CRDT: `Map<Key, MVRegister<Value>>`
+- Causality: version vectors; inventory: exact received counter ranges
+- Operation ID: `(replica_uuid, 1-based counter)`
+- Durable store: immutable identity + append-only checksummed operation batches + append-only counter evidence + checksummed snapshots
+- Versions: state/log/counter/snapshot/wire = 1
+- Delete: causally tracked tombstone; concurrent delete/write preserved
+- Bootstrap: complete missing-operation transfer from empty summary
+- Anti-entropy: exact-range delta exchange, retry/idempotency safe
+- Compaction: snapshot creation only; authoritative operation history retained
+- Replica retirement: not implemented; destructive GC therefore not claimed
+- Exhaustive small-state campaign: 24 delivery permutations
+- Property campaign: 64 deterministic randomized three-replica histories
+- Fuzz: bounded deterministic parser fuzz smoke in test suite
+- Package: release build + installed CLI smoke gate
+- Manifest: SHA-256 fail-closed verification gate
+- CI run: https://github.com/SaridakisStamatisChristos/CausalMesh/actions/runs/38162727329
+- Production-readiness verdict: **strong experimental/embedded v0.1, not general production-ready** because remote authentication, replica retirement, bounded history GC, and broader power-loss/filesystem fault modeling are intentionally absent.
