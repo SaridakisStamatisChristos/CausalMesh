@@ -1,4 +1,6 @@
-use causalmesh::{CausalContext, Dot, Error, OpKind, Operation, Replica, WireMessage, WIRE_VERSION};
+use causalmesh::{
+    CausalContext, Dot, Error, OpKind, Operation, Replica, WireMessage, WIRE_VERSION,
+};
 use tempfile::TempDir;
 use uuid::Uuid;
 
@@ -26,7 +28,10 @@ fn conflicting_duplicate_id_fails_before_mutation() {
     b.receive_batch(&[op.clone()]).unwrap();
     let before = b.logical_state();
     op.kind = OpKind::Put(b"evil".to_vec());
-    assert!(matches!(b.receive_batch(&[op]), Err(Error::ConflictingOperation(_))));
+    assert!(matches!(
+        b.receive_batch(&[op]),
+        Err(Error::ConflictingOperation(_))
+    ));
     assert_eq!(before, b.logical_state());
 }
 
@@ -35,8 +40,18 @@ fn malformed_batch_does_not_partially_commit() {
     let dir = TempDir::new().unwrap();
     let mut r = Replica::init(dir.path()).unwrap();
     let remote = Uuid::new_v4();
-    let good = Operation { id: Dot::new(remote, 1).unwrap(), context: CausalContext::default(), key: "ok".into(), kind: OpKind::Put(b"v".to_vec()) };
-    let bad = Operation { id: Dot::new(remote, 2).unwrap(), context: CausalContext::default(), key: String::new(), kind: OpKind::Put(b"bad".to_vec()) };
+    let good = Operation {
+        id: Dot::new(remote, 1).unwrap(),
+        context: CausalContext::default(),
+        key: "ok".into(),
+        kind: OpKind::Put(b"v".to_vec()),
+    };
+    let bad = Operation {
+        id: Dot::new(remote, 2).unwrap(),
+        context: CausalContext::default(),
+        key: String::new(),
+        kind: OpKind::Put(b"bad".to_vec()),
+    };
     assert!(r.receive_batch(&[good, bad]).is_err());
     assert!(r.get("ok").is_empty());
     assert!(r.operations().is_empty());
@@ -44,7 +59,11 @@ fn malformed_batch_does_not_partially_commit() {
 
 #[test]
 fn unsupported_wire_version_fails_closed() {
-    let msg = format!("{{\"message\":\"hello\",\"version\":{},\"replica_id\":\"{}\"}}", WIRE_VERSION + 1, Uuid::new_v4());
+    let msg = format!(
+        "{{\"message\":\"hello\",\"version\":{},\"replica_id\":\"{}\"}}",
+        WIRE_VERSION + 1,
+        Uuid::new_v4()
+    );
     assert!(WireMessage::decode(msg.as_bytes()).is_err());
 }
 

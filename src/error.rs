@@ -9,7 +9,11 @@ pub enum Error {
     #[error("serialization error: {0}")]
     Serde(#[from] serde_json::Error),
     #[error("unsupported {kind} version {found}; expected {expected}")]
-    UnsupportedVersion { kind: &'static str, found: u16, expected: u16 },
+    UnsupportedVersion {
+        kind: &'static str,
+        found: u16,
+        expected: u16,
+    },
     #[error("corruption detected in {path}: {detail}")]
     Corruption { path: PathBuf, detail: String },
     #[error("resource bound exceeded: {0}")]

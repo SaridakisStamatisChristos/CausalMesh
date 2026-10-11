@@ -20,8 +20,14 @@ fn committed_local_mutation_survives_reopen() {
 #[test]
 fn counter_never_moves_backward_across_restart() {
     let dir = TempDir::new().unwrap();
-    let first = { let mut r = Replica::init(dir.path()).unwrap(); r.put("a", b"1".to_vec()).unwrap() };
-    let second = { let mut r = Replica::open(dir.path()).unwrap(); r.put("b", b"2".to_vec()).unwrap() };
+    let first = {
+        let mut r = Replica::init(dir.path()).unwrap();
+        r.put("a", b"1".to_vec()).unwrap()
+    };
+    let second = {
+        let mut r = Replica::open(dir.path()).unwrap();
+        r.put("b", b"2".to_vec()).unwrap()
+    };
     assert_eq!(first.replica, second.replica);
     assert!(second.counter > first.counter);
 }
@@ -29,7 +35,10 @@ fn counter_never_moves_backward_across_restart() {
 #[test]
 fn recognizable_torn_final_log_record_is_truncated() {
     let dir = TempDir::new().unwrap();
-    { let mut r = Replica::init(dir.path()).unwrap(); r.put("k", b"v".to_vec()).unwrap(); }
+    {
+        let mut r = Replica::init(dir.path()).unwrap();
+        r.put("k", b"v".to_vec()).unwrap();
+    }
     let path = dir.path().join("ops.log");
     let good_len = std::fs::metadata(&path).unwrap().len();
     let mut file = OpenOptions::new().append(true).open(&path).unwrap();
@@ -44,7 +53,10 @@ fn recognizable_torn_final_log_record_is_truncated() {
 #[test]
 fn complete_corrupt_record_fails_closed() {
     let dir = TempDir::new().unwrap();
-    { let mut r = Replica::init(dir.path()).unwrap(); r.put("k", b"v".to_vec()).unwrap(); }
+    {
+        let mut r = Replica::init(dir.path()).unwrap();
+        r.put("k", b"v".to_vec()).unwrap();
+    }
     let path = dir.path().join("ops.log");
     let mut bytes = std::fs::read(&path).unwrap();
     let idx = bytes.len() - 1;

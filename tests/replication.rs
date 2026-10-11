@@ -56,7 +56,11 @@ fn stale_peer_cannot_resurrect_deleted_value() {
     sync_bidirectional(&mut a, &mut b).unwrap();
     assert!(a.get("k").is_empty());
     assert!(b.get("k").is_empty());
-    let ancient = b.operations().into_iter().find(|op| matches!(op.kind, causalmesh::OpKind::Put(_))).unwrap();
+    let ancient = b
+        .operations()
+        .into_iter()
+        .find(|op| matches!(op.kind, causalmesh::OpKind::Put(_)))
+        .unwrap();
     assert_eq!(a.receive_batch(&[ancient]).unwrap(), 0);
     assert!(a.get("k").is_empty());
 }

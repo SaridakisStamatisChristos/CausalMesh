@@ -16,7 +16,9 @@ pub struct Dot {
 impl Dot {
     pub fn new(replica: Uuid, counter: u64) -> Result<Self> {
         if counter == 0 {
-            return Err(Error::InvalidOperation("dot counter must be positive".into()));
+            return Err(Error::InvalidOperation(
+                "dot counter must be positive".into(),
+            ));
         }
         Ok(Self { replica, counter })
     }
@@ -36,12 +38,15 @@ pub struct CausalContext {
 
 impl CausalContext {
     pub fn contains(&self, dot: Dot) -> bool {
-        self.base.get(&dot.replica).copied().unwrap_or(0) >= dot.counter || self.cloud.contains(&dot)
+        self.base.get(&dot.replica).copied().unwrap_or(0) >= dot.counter
+            || self.cloud.contains(&dot)
     }
 
     pub fn observe(&mut self, dot: Dot) -> Result<()> {
         if dot.counter == 0 {
-            return Err(Error::InvalidOperation("cannot observe counter zero".into()));
+            return Err(Error::InvalidOperation(
+                "cannot observe counter zero".into(),
+            ));
         }
         let current = self.base.get(&dot.replica).copied().unwrap_or(0);
         if dot.counter <= current {
@@ -70,7 +75,9 @@ impl CausalContext {
         self.enforce_bound()?;
         for (replica, counter) in &self.base {
             if *counter == 0 {
-                return Err(Error::InvalidOperation(format!("zero base entry for {replica}")));
+                return Err(Error::InvalidOperation(format!(
+                    "zero base entry for {replica}"
+                )));
             }
         }
         for dot in &self.cloud {
@@ -87,23 +94,42 @@ impl CausalContext {
         Ok(())
     }
 
-    pub fn base(&self) -> &BTreeMap<Uuid, u64> { &self.base }
-    pub fn cloud(&self) -> &BTreeSet<Dot> { &self.cloud }
-    pub fn entry_count(&self) -> usize { self.base.len() + self.cloud.len() }
+    pub fn base(&self) -> &BTreeMap<Uuid, u64> {
+        &self.base
+    }
+    pub fn cloud(&self) -> &BTreeSet<Dot> {
+        &self.cloud
+    }
+    pub fn entry_count(&self) -> usize {
+        self.base.len() + self.cloud.len()
+    }
 
     fn normalize(&mut self) {
-        self.cloud.retain(|dot| dot.counter > self.base.get(&dot.replica).copied().unwrap_or(0));
+        self.cloud
+            .retain(|dot| dot.counter > self.base.get(&dot.replica).copied().unwrap_or(0));
         let replicas: Vec<Uuid> = self.cloud.iter().map(|d| d.replica).collect();
-        for replica in replicas { self.absorb(replica); }
+        for replica in replicas {
+            self.absorb(replica);
+        }
         self.base.retain(|_, counter| *counter != 0);
     }
 
     fn absorb(&mut self, replica: Uuid) {
         loop {
             let current = self.base.get(&replica).copied().unwrap_or(0);
-            let next = match current.checked_add(1) { Some(v) => v, None => break };
-            let dot = Dot { replica, counter: next };
-            if self.cloud.remove(&dot) { self.base.insert(replica, next); } else { break; }
+            let next = match current.checked_add(1) {
+                Some(v) => v,
+                None => break,
+            };
+            let dot = Dot {
+                replica,
+                counter: next,
+            };
+            if self.cloud.remove(&dot) {
+                self.base.insert(replica, next);
+            } else {
+                break;
+            }
         }
     }
 
@@ -111,7 +137,8 @@ impl CausalContext {
         if self.entry_count() > MAX_CAUSAL_ENTRIES {
             return Err(Error::Bounds(format!(
                 "causal context has {} entries; maximum is {}",
-                self.entry_count(), MAX_CAUSAL_ENTRIES
+                self.entry_count(),
+                MAX_CAUSAL_ENTRIES
             )));
         }
         Ok(())
