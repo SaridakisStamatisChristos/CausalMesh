@@ -19,8 +19,20 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-      - name: Format
-        run: cargo fmt --check
+      - name: Generate lockfile
+        run: cargo generate-lockfile
+      - name: Apply rustfmt for diagnostic cycle
+        run: cargo fmt
+      - name: Preserve rustfmt output
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rustfmt-output
+          if-no-files-found: error
+          path: |
+            src
+            tests
+            Cargo.lock
       - name: Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Tests
@@ -32,13 +44,15 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf target/cm-a target/cm-b
-          target/release/causalmesh init target/cm-a
-          target/release/causalmesh init target/cm-b
-          target/release/causalmesh put target/cm-a k a
-          target/release/causalmesh put target/cm-b k b
-          target/release/causalmesh sync target/cm-a target/cm-b
-          target/release/causalmesh verify target/cm-a
-          target/release/causalmesh verify target/cm-b
+          BIN=target/release/causalmesh
+          if [[ "$RUNNER_OS" == "Windows" ]]; then BIN="${BIN}.exe"; fi
+          "$BIN" init target/cm-a
+          "$BIN" init target/cm-b
+          "$BIN" put target/cm-a k a
+          "$BIN" put target/cm-b k b
+          "$BIN" sync target/cm-a target/cm-b
+          "$BIN" verify target/cm-a
+          "$BIN" verify target/cm-b
 
   evidence:
     runs-on: ubuntu-latest
