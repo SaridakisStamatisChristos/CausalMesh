@@ -21,7 +21,13 @@ pub fn vv(entries: &[(ReplicaId, u64)]) -> VersionVector {
     vv
 }
 
-pub fn put(replica: ReplicaId, counter: u64, context: VersionVector, key: &str, value: &str) -> Operation {
+pub fn put(
+    replica: ReplicaId,
+    counter: u64,
+    context: VersionVector,
+    key: &str,
+    value: &str,
+) -> Operation {
     Operation {
         id: Dot { replica, counter },
         context,
@@ -36,6 +42,8 @@ pub fn delete(replica: ReplicaId, counter: u64, context: VersionVector, key: &st
     Operation {
         id: Dot { replica, counter },
         context,
-        kind: OperationKind::Delete { key: key.to_string() },
+        kind: OperationKind::Delete {
+            key: key.to_string(),
+        },
     }
 }

@@ -2,7 +2,9 @@ use causalmesh::codec::{decode_counters, decode_log};
 use causalmesh::protocol::decode_wire;
 
 fn next(seed: &mut u64) -> u64 {
-    *seed = seed.wrapping_mul(2862933555777941757).wrapping_add(3037000493);
+    *seed = seed
+        .wrapping_mul(2862933555777941757)
+        .wrapping_add(3037000493);
     *seed
 }
 

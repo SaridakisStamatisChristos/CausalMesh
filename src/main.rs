@@ -5,7 +5,11 @@ use std::error::Error;
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
-#[command(name = "causalmesh", version, about = "Offline-first causal replicated state engine")]
+#[command(
+    name = "causalmesh",
+    version,
+    about = "Offline-first causal replicated state engine"
+)]
 struct Cli {
     #[arg(long, global = true)]
     json: bool,
@@ -15,18 +19,47 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Command {
-    Init { dir: PathBuf },
-    Put { dir: PathBuf, key: String, value: String },
-    Get { dir: PathBuf, key: String },
-    Delete { dir: PathBuf, key: String },
-    Status { dir: PathBuf },
-    Verify { dir: PathBuf },
-    ExportSummary { dir: PathBuf },
-    Sync { dir_a: PathBuf, dir_b: PathBuf },
-    DumpLog { dir: PathBuf },
-    Snapshot { dir: PathBuf },
-    Compact { dir: PathBuf },
-    Doctor { dir: PathBuf },
+    Init {
+        dir: PathBuf,
+    },
+    Put {
+        dir: PathBuf,
+        key: String,
+        value: String,
+    },
+    Get {
+        dir: PathBuf,
+        key: String,
+    },
+    Delete {
+        dir: PathBuf,
+        key: String,
+    },
+    Status {
+        dir: PathBuf,
+    },
+    Verify {
+        dir: PathBuf,
+    },
+    ExportSummary {
+        dir: PathBuf,
+    },
+    Sync {
+        dir_a: PathBuf,
+        dir_b: PathBuf,
+    },
+    DumpLog {
+        dir: PathBuf,
+    },
+    Snapshot {
+        dir: PathBuf,
+    },
+    Compact {
+        dir: PathBuf,
+    },
+    Doctor {
+        dir: PathBuf,
+    },
 }
 
 fn main() -> Result<(), Box<dyn Error>> {

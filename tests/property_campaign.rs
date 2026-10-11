@@ -13,14 +13,20 @@ fn sync_indices(replicas: &mut [Replica], i: usize, j: usize) {
 }
 
 fn next(seed: &mut u64) -> u64 {
-    *seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+    *seed = seed
+        .wrapping_mul(6364136223846793005)
+        .wrapping_add(1442695040888963407);
     *seed
 }
 
 #[test]
 fn deterministic_random_histories_converge_after_eventual_delivery() {
     for initial_seed in 0u64..64 {
-        let dirs = [TempDir::new().unwrap(), TempDir::new().unwrap(), TempDir::new().unwrap()];
+        let dirs = [
+            TempDir::new().unwrap(),
+            TempDir::new().unwrap(),
+            TempDir::new().unwrap(),
+        ];
         let paths = [
             dirs[0].path().to_path_buf(),
             dirs[1].path().to_path_buf(),
@@ -62,7 +68,15 @@ fn deterministic_random_histories_converge_after_eventual_delivery() {
             sync_indices(&mut replicas, 0, 2);
         }
         let s0 = replicas[0].logical_state().unwrap();
-        assert_eq!(s0, replicas[1].logical_state().unwrap(), "seed {initial_seed}");
-        assert_eq!(s0, replicas[2].logical_state().unwrap(), "seed {initial_seed}");
+        assert_eq!(
+            s0,
+            replicas[1].logical_state().unwrap(),
+            "seed {initial_seed}"
+        );
+        assert_eq!(
+            s0,
+            replicas[2].logical_state().unwrap(),
+            "seed {initial_seed}"
+        );
     }
 }

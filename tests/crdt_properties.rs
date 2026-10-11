@@ -65,7 +65,10 @@ fn merge_is_idempotent_commutative_and_associative() {
     sc.apply(put(c, 1, vv(&[]), "x", "c")).unwrap();
 
     assert_eq!(sa.merge(&sa).unwrap().export(), sa.export());
-    assert_eq!(sa.merge(&sb).unwrap().export(), sb.merge(&sa).unwrap().export());
+    assert_eq!(
+        sa.merge(&sb).unwrap().export(),
+        sb.merge(&sa).unwrap().export()
+    );
 
     let left = sa.merge(&sb).unwrap().merge(&sc).unwrap();
     let right = sa.merge(&sb.merge(&sc).unwrap()).unwrap();
@@ -76,10 +79,7 @@ fn merge_is_idempotent_commutative_and_associative() {
 fn equivalent_histories_have_identical_canonical_bytes() {
     let a = rid(1);
     let b = rid(2);
-    let ops = vec![
-        put(a, 1, vv(&[]), "z", "1"),
-        put(b, 1, vv(&[]), "a", "2"),
-    ];
+    let ops = vec![put(a, 1, vv(&[]), "z", "1"), put(b, 1, vv(&[]), "a", "2")];
     let mut left = CrdtState::default();
     for op in &ops {
         left.apply(op.clone()).unwrap();

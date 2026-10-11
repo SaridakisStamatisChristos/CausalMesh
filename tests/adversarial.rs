@@ -43,7 +43,14 @@ fn invalid_batch_does_not_partially_commit() {
     assert!(b.receive_operations(&batch).is_err());
     assert_eq!(b.status().unwrap().operation_count, 0);
     drop(b);
-    assert_eq!(Replica::open(db.path()).unwrap().status().unwrap().operation_count, 0);
+    assert_eq!(
+        Replica::open(db.path())
+            .unwrap()
+            .status()
+            .unwrap()
+            .operation_count,
+        0
+    );
 }
 
 #[test]
@@ -90,7 +97,10 @@ fn cloned_replica_identity_is_detected_before_sync_mutation() {
     let mut b = Replica::open(clone.path()).unwrap();
     a.put("k", b"from-a".to_vec()).unwrap();
     b.put("k", b"from-b".to_vec()).unwrap();
-    assert!(matches!(sync_pair(&mut a, &mut b), Err(Error::CloneIdentity)));
+    assert!(matches!(
+        sync_pair(&mut a, &mut b),
+        Err(Error::CloneIdentity)
+    ));
 }
 
 #[test]
@@ -105,5 +115,8 @@ fn origin_counter_transition_must_be_exact() {
             key: "k".to_string(),
         },
     };
-    assert!(matches!(op.validate().unwrap_err(), Error::InvalidOperation(_)));
+    assert!(matches!(
+        op.validate().unwrap_err(),
+        Error::InvalidOperation(_)
+    ));
 }

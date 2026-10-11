@@ -103,10 +103,19 @@ impl Summary {
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum WireMessage {
-    Hello { replica_id: ReplicaId },
-    Summary { summary: Summary },
-    Operations { sender: ReplicaId, operations: Vec<Operation> },
-    Ack { summary: Summary },
+    Hello {
+        replica_id: ReplicaId,
+    },
+    Summary {
+        summary: Summary,
+    },
+    Operations {
+        sender: ReplicaId,
+        operations: Vec<Operation>,
+    },
+    Ack {
+        summary: Summary,
+    },
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]

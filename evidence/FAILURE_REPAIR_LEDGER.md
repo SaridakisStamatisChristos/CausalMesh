@@ -49,3 +49,15 @@ Failures are retained; entries are never deleted when repaired.
 - **Repair:** reconcile the manifest with the final CI workflow, remove this temporary reconciler, then trigger CI again from an event SHA whose manifest is already authoritative.
 - **Regression/evidence path:** the next CI run must pass `scripts/verify_manifest.py` before evidence closure.
 - **Status:** REPAIRED when the clean post-reconciliation CI run passes the manifest gate.
+
+## F-005 — Rustfmt quality gate rejected synthesized sources
+
+- **Lifecycle phase:** VERIFY / QUALITY
+- **Reproducer:** CI run 38162278063, `cargo fmt --check` in `quality-linux`.
+- **Observed behavior:** Linux and macOS test/release-build lanes passed, but the quality lane stopped on deterministic rustfmt diffs across source, tests, and the benchmark smoke example.
+- **Violated requirement/claim:** formatting CI gate; no semantic correctness invariant was falsified by this finding.
+- **Root cause:** the construction environment had no local Rust toolchain, so synthesized Rust was not normalized with the authoritative runner rustfmt before first CI.
+- **Earliest invalidated phase:** GENERATE / VERIFY formatting surface.
+- **Repair:** run `cargo fmt --all` with the same stable Rust runner toolchain, retain this ledger entry, regenerate the authoritative manifest, and rerun the complete CI matrix from the repaired commit.
+- **Regression/evidence path:** `cargo fmt --check`, Clippy, all-target tests, release builds, installed CLI smoke, cross-platform matrix, RustSec, and manifest verification must all close on a later run.
+- **Status:** REPAIRED when the clean post-format CI run passes all required gates.

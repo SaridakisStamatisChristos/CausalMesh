@@ -10,7 +10,13 @@ use tempfile::TempDir;
 fn torn_final_operation_record_is_ignored_and_recovery_continues() {
     let dir = TempDir::new().unwrap();
     let (storage, recovery) = Storage::open(dir.path()).unwrap();
-    let op = put(recovery.replica_id.clone(), 1, VersionVector::default(), "k", "v");
+    let op = put(
+        recovery.replica_id.clone(),
+        1,
+        VersionVector::default(),
+        "k",
+        "v",
+    );
     let err = storage
         .append_operations_with_failpoint(&[op], Some(FailPoint::MidRecord))
         .unwrap_err();
@@ -26,7 +32,13 @@ fn torn_final_operation_record_is_ignored_and_recovery_continues() {
 fn durable_operation_with_missing_counter_metadata_repairs_monotonically() {
     let dir = TempDir::new().unwrap();
     let (storage, recovery) = Storage::open(dir.path()).unwrap();
-    let op = put(recovery.replica_id.clone(), 1, VersionVector::default(), "k", "v");
+    let op = put(
+        recovery.replica_id.clone(),
+        1,
+        VersionVector::default(),
+        "k",
+        "v",
+    );
     storage.append_operations(&[op]).unwrap();
     drop(storage);
 

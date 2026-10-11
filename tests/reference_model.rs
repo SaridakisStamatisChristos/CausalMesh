@@ -5,10 +5,15 @@ use causalmesh::{Operation, OperationKind};
 use common::{delete, put, rid, vv};
 use std::collections::BTreeMap;
 
-fn independent_frontier(ops: &[Operation]) -> BTreeMap<String, Vec<(causalmesh::Dot, Option<Vec<u8>>)>> {
+fn independent_frontier(
+    ops: &[Operation],
+) -> BTreeMap<String, Vec<(causalmesh::Dot, Option<Vec<u8>>)>> {
     let mut by_key: BTreeMap<String, Vec<&Operation>> = BTreeMap::new();
     for op in ops {
-        by_key.entry(op.kind.key().to_string()).or_default().push(op);
+        by_key
+            .entry(op.kind.key().to_string())
+            .or_default()
+            .push(op);
     }
     by_key
         .into_iter()

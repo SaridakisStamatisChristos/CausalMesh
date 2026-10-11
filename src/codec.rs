@@ -1,7 +1,5 @@
 use crate::error::{Error, Result};
-use crate::types::{
-    Operation, COUNTER_VERSION, LOG_VERSION, MAX_RECORD_BYTES, SNAPSHOT_VERSION,
-};
+use crate::types::{Operation, COUNTER_VERSION, LOG_VERSION, MAX_RECORD_BYTES, SNAPSHOT_VERSION};
 use crc32fast::Hasher;
 use serde::{de::DeserializeOwned, Serialize};
 

@@ -20,12 +20,7 @@ fn documented_cli_happy_path_works() {
 
     run(&["init", dir_a.path().to_str().unwrap()]);
     run(&["init", dir_b.path().to_str().unwrap()]);
-    run(&[
-        "put",
-        dir_a.path().to_str().unwrap(),
-        "hello",
-        "world",
-    ]);
+    run(&["put", dir_a.path().to_str().unwrap(), "hello", "world"]);
     run(&[
         "sync",
         dir_a.path().to_str().unwrap(),

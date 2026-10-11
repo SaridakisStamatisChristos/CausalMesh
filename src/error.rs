@@ -13,7 +13,10 @@ pub enum Error {
     #[error("unsupported {surface} version: {version}")]
     UnsupportedVersion { surface: &'static str, version: u16 },
     #[error("corrupt {surface}: {detail}")]
-    Corrupt { surface: &'static str, detail: String },
+    Corrupt {
+        surface: &'static str,
+        detail: String,
+    },
     #[error("resource bound exceeded: {0}")]
     Bounds(String),
     #[error("duplicate operation id {0} has a different payload")]

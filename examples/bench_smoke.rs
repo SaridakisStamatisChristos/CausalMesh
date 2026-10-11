@@ -39,9 +39,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("operations={n}");
     println!("put_total_ms={:.3}", put_elapsed.as_secs_f64() * 1000.0);
     println!("get_total_ms={:.3}", get_elapsed.as_secs_f64() * 1000.0);
-    println!("delta_sync_ms={:.3} sent={}", delta_sync.as_secs_f64() * 1000.0, delta.sent_a_to_b);
-    println!("zero_sync_ms={:.3} sent={}", zero_sync.as_secs_f64() * 1000.0, zero.sent_a_to_b + zero.sent_b_to_a);
-    println!("reopen_ms={:.3} recovered_ops={}", reopen.as_secs_f64() * 1000.0, reopened.status()?.operation_count);
+    println!(
+        "delta_sync_ms={:.3} sent={}",
+        delta_sync.as_secs_f64() * 1000.0,
+        delta.sent_a_to_b
+    );
+    println!(
+        "zero_sync_ms={:.3} sent={}",
+        zero_sync.as_secs_f64() * 1000.0,
+        zero.sent_a_to_b + zero.sent_b_to_a
+    );
+    println!(
+        "reopen_ms={:.3} recovered_ops={}",
+        reopen.as_secs_f64() * 1000.0,
+        reopened.status()?.operation_count
+    );
 
     std::fs::remove_dir_all(root)?;
     Ok(())

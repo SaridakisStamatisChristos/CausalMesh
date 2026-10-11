@@ -165,9 +165,13 @@ impl Replica {
     pub fn snapshot(&self) -> Result<SnapshotData> {
         self.ensure_live()?;
         let snapshot = SnapshotData {
-            generation: self.storage.snapshot_generation()?.checked_add(1).ok_or_else(|| {
-                Error::CounterInvariant("snapshot generation overflow".to_string())
-            })?,
+            generation: self
+                .storage
+                .snapshot_generation()?
+                .checked_add(1)
+                .ok_or_else(|| {
+                    Error::CounterInvariant("snapshot generation overflow".to_string())
+                })?,
             replica_id: self.replica_id.clone(),
             local_counter: self.local_counter,
             state: self.state.export(),
