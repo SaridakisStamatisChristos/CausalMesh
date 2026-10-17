@@ -1,5 +1,9 @@
 # Architecture
 
+![CausalMesh architecture](assets/causalmesh-architecture.svg)
+
+The diagram above is the repository-native overview of the current v0.1 architecture. The sections below state the same boundaries in implementation terms.
+
 ## Components
 
 `causal` defines dots and exact dotted causal contexts. `model` is the deterministic operation-set CRDT and MV-register projection. `storage` owns identity, counter reservation, append-only operation records, recovery, corruption checks, and immutable snapshots. `protocol` defines the versioned machine-readable JSON messages. `replica` binds persistence to replication semantics. `main` is a thin CLI.
