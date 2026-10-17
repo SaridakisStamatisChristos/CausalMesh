@@ -65,7 +65,9 @@ CI runs the Rust gates on Linux, macOS, and Windows. The suite includes independ
 
 ## Architecture and evidence
 
-Read `docs/ARCHITECTURE.md`, `docs/CAUSALITY.md`, `docs/CRDT_SEMANTICS.md`, `docs/ANTI_ENTROPY.md`, `docs/STORAGE_FORMAT.md`, and the evidence ledgers under `evidence/`.
+Read `docs/ARCHITECTURE.md`, `docs/CAUSALITY.md`, `docs/CRDT_SEMANTICS.md`, `docs/ANTI_ENTROPY.md`, and `docs/STORAGE_FORMAT.md`.
+
+The active assurance surface is documented in [`evidence/README.md`](evidence/README.md). Current claims, assumptions, requirements, adversarial assurance, and the integrity manifest remain canonical product/research evidence. One-off implementation-campaign reports are isolated under `evidence/history/` and are explicitly non-authoritative.
 
 ## License
 

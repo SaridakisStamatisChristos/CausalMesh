@@ -2,7 +2,7 @@
 
 Status vocabulary: `VERIFIED`, `PARTIAL`, `UNVERIFIED`, `FAILED`, `N/A`.
 
-The executable evidence baseline for the final code is GitHub Actions run `38162454086` on commit `4714976e7dd8b3b71660bf12f5d2dc08ea8798c0`: Linux, macOS, and Windows format/Clippy/tests/release/CLI lanes passed and benchmark smoke passed. The final evidence/manifest tree is required to rerun the same gates plus RustSec and manifest verification before merge.
+The executable evidence baseline is the repository's required CI workflow: Linux, macOS, and Windows format/Clippy/tests/release/CLI lanes, benchmark smoke, RustSec dependency audit, and SHA-256 manifest verification. A change is considered current evidence only after the relevant gates pass on that tree.
 
 | ID | Requirement / invariant | Evidence | Status |
 |---|---|---|---|
@@ -28,14 +28,12 @@ The executable evidence baseline for the final code is GitHub Actions run `38162
 | R-BOOT | Bootstrap preserves causal history, not only visible values. | full operation transfer bootstrap regression | VERIFIED |
 | R-SNAP | Snapshot contains complete causal operation set and is versioned/checksummed. | round-trip + corruption + bound tests | VERIFIED |
 | R-GC | Unsafe compaction/GC is not implemented. | design/absence audit | VERIFIED |
-| R-REF | Independent reference oracle exists. | `reference_model.rs` and independent projection in generated campaign | VERIFIED |
+| R-REF | Independent reference oracle exists. | `reference_model.rs` and independent projection in generated tests | VERIFIED |
 | R-EXH | Bounded exhaustive schedule checking exists. | 3-op 6 permutations; 4-op 24 permutations | VERIFIED |
 | R-PROP | Generated histories exercise partitions, reordering, duplicates, restart, snapshot and sync. | 32-case proptest model campaign | VERIFIED |
 | R-FUZZ | Bounded parser smoke covers disk records, wire, causal context and snapshots. | four deterministic-noise smoke tests | VERIFIED |
 | R-CLI | Required CLI commands/library API are usable. | cross-platform release CLI smoke | VERIFIED |
-| R-XPLAT | Linux/macOS/Windows required lanes pass. | run `38162454086`; final tree rerun required | VERIFIED |
+| R-XPLAT | Linux/macOS/Windows required lanes pass. | CI Rust matrix | VERIFIED |
 | R-PKG | Locked release build and reusable crate/CLI succeed. | cross-platform release build + smoke | VERIFIED |
-| R-SEC | Dependency advisory scan is part of CI. | RustSec audit; known-good run `38161748408`; final tree rerun required | VERIFIED |
-| R-EVID | Requirements, assumptions, claims, failure history, final audit and fail-closed SHA-256 manifest are present. | `evidence/` + final manifest CI gate | VERIFIED when final manifest commit passes CI |
-
-`FINAL_MANIFEST_STATUS: VERIFIED`
+| R-SEC | Dependency advisory scan is part of CI. | RustSec security-audit job | VERIFIED |
+| R-EVID | Current assumptions, claims, requirements, assurance review, and fail-closed SHA-256 manifest are present; implementation-campaign history is isolated from canonical evidence. | `evidence/` structure + manifest CI gate | VERIFIED when the current tree passes CI |
