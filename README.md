@@ -4,6 +4,10 @@ A deterministic, offline-first replicated state engine with causal consistency, 
 
 CausalMesh is an embedded Rust library plus CLI for replicas that must mutate while disconnected and later reconcile without a coordinator. Version 0.1 implements `Map<Key, MV-Register<Value>>` with causally tracked deletes, exact dotted causal contexts, append-only durable logs, bounded parsers, deterministic JSON wire messages, in-process bidirectional anti-entropy, immutable snapshots, and fail-closed corruption/version checks.
 
+<p align="center">
+  <img src="docs/assets/causalmesh-architecture.svg" alt="CausalMesh architecture: interfaces, replica engine, durable storage, anti-entropy and assurance" width="100%">
+</p>
+
 ## Status
 
 This repository is an evidence-backed experimental systems implementation, **not a production-ready distributed database**. It does not claim Byzantine security, authenticated peers, safe destructive tombstone GC, destructive log compaction, or transparent live-clone prevention. A peer presenting the local replica UUID is rejected before causal summary exchange, so cloned identities fail closed at synchronization time. See `docs/LIMITATIONS.md` and `evidence/CLAIMS.md`.
@@ -65,7 +69,7 @@ CI runs the Rust gates on Linux, macOS, and Windows. The suite includes independ
 
 ## Architecture and evidence
 
-Read `docs/ARCHITECTURE.md`, `docs/CAUSALITY.md`, `docs/CRDT_SEMANTICS.md`, `docs/ANTI_ENTROPY.md`, and `docs/STORAGE_FORMAT.md`.
+The repository-native architecture diagram is maintained at [`docs/assets/causalmesh-architecture.svg`](docs/assets/causalmesh-architecture.svg). Read `docs/ARCHITECTURE.md`, `docs/CAUSALITY.md`, `docs/CRDT_SEMANTICS.md`, `docs/ANTI_ENTROPY.md`, and `docs/STORAGE_FORMAT.md` for the corresponding design contracts.
 
 The active assurance surface is documented in [`evidence/README.md`](evidence/README.md). Current claims, assumptions, requirements, adversarial assurance, and the integrity manifest remain canonical product/research evidence. One-off implementation-campaign reports are isolated under `evidence/history/` and are explicitly non-authoritative.
 
